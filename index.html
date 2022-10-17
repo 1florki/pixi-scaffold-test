@@ -8,62 +8,114 @@
 <body style="background-color:black; margin: 0; height: 100%; overflow: hidden">
 
   <script src="https://mrdoob.github.io/stats.js/build/stats.min.js"></script>
-  
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/6.2.1/browser/pixi.min.js"></script>
-  
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/simplex-noise/2.4.0/simplex-noise.min.js"></script>
-  
-  
-  <script src="./hammer.min.js"></script>
-  
-  <script src="./pixiwrapper.js"></script>
-  
+
+
+  <script src="./helper/hammer.min.js"></script>
+
+  <script src="./helper/wrapper.js"></script>
+
+  <script src="./helper/jsrand.min.js"></script>
+
+  <script src="./helper/vector.js"></script>
+  <script src="./helper/particles.js"></script>
+
   <script>
+    let moving;
+
+    let backShapes = [];
+
+    let ps;
     
-let wrapper = new PixiWrapper();
-    wrapper.setup(900, 500);
-    /*
-    function setupTouch() {
-      window.addEventListener("touchstart", (evt) => {
-        for (let c of evt.changedTouches) {
-          currentGame.touchStart(makeTouch(c));
-        }
-      }, false);
-      window.addEventListener("touchend", (evt) => {
-        for (let c of evt.changedTouches) {
-          currentGame.touchEnd(makeTouch(c));
-        }
-      }, false);
-      window.addEventListener("touchcancel", (evt) => {
-        for (let c of evt.changedTouches) {
-          currentGame.touchEnd(makeTouch(c));
-        }
-      }, false);
-      window.addEventListener("touchmove", (evt) => {
-        for (let c of evt.changedTouches) {
-          currentGame.touchMove(makeTouch(c));
-        }
-      }, false);
+    let setup = (game) => {
+      let rnd = new Srand(10);
 
-      window.addEventListener("mousedown", (evt) => {
-        currentGame.touchStart(makeTouch(evt));
-      }, false);
-      window.addEventListener("mouseup", (evt) => {
-        currentGame.touchEnd(makeTouch(evt));
-      }, false);
-      window.addEventListener("mousemove", (evt) => {
-        currentGame.touchMove(makeTouch(evt));
-      }, false);
+      for (let i = 0; i < 100; i++) {
+        let s = new Shape({
+          parent: game.canvas,
+          noStroke: true,
+          color: rnd.choice([0x111111, 0x333333, 0x555555, 0x777777, 0x999999, 0xbbbbbb, 0xdddddd])
+        });
+
+        s.setPosition((rnd.random() - 0.5) * game.size.x * 0.9, (rnd.random() - 0.5) * game.size.y * 0.9);
+        backShapes.push(s);
+      }
+
+      let background = new Shape({
+        w: game.size.x,
+        h: game.size.y,
+        parent: game.canvas,
+        color: 0x00aa99,
+        alpha: 0.5
+      });
+
+      moving = new Shape({
+        s: 100,
+        parent: game.canvas,
+        color: 0xaa9900,
+        alpha: 1.0,
+        stroke: 0xff0000,
+        weight: 10
+      });
+
+      shape = new Shape({
+        s: 20,
+        parent: game.canvas,
+        color: 0xffffff,
+        noStroke: true
+      });
+
+      ps = new ParticleSystem({parent: game.canvas});
     }
 
-    function makeTouch(c) {
-      let p = gameContainer.toLocal({
-        x: c.clientX / window.devicePixelRatio,
-        y: c.clientY / window.devicePixelRatio
-      })
-      return p;
-    }
-*/
+    let loop = (game, dt, total, controls) => {
+      moving.setPosition(0, Math.sin(total * 0.001) * 100)
 
+      if (controls.keys["w"]) {
+        for (let s of backShapes) {
+          s.move(0, -dt * 0.1);
+        }
+      }
+      if (controls.keys["s"]) {
+        for (let s of backShapes) {
+          s.move(0, dt * 0.1);
+        }
+      }
+      
+      ps.add({x: (Math.random() - 0.5) * game.size.x, y: -game.size.y / 2, velY: dt * (Math.random() + 0.5), maxAge: 1000, drag: 0.98, size: 20, vanish: true})
+      ps.update(dt);
+    }
+    let wrapper = new PixiWrapper({
+      setup: setup,
+      loop: loop,
+      swipe: (game, evt) => {
+        shape.setPosition(evt.pos.x, evt.pos.y);
+        shape.setColor(0xff0000)
+      },
+      pan: (game, evt) => {
+        shape.setPosition(evt.pos.x, evt.pos.y);
+        shape.setColor(0x0000ff)
+      },
+      doubletap: (game, evt) => {
+        shape.setPosition(evt.pos.x, evt.pos.y);
+        shape.setColor(0x00ff00)
+      },
+      press: (game, evt) => {
+        shape.setPosition(evt.pos.x, evt.pos.y);
+        shape.setColor(0xff00ff)
+      },
+      tap: (game, evt) => {
+        shape.setPosition(evt.pos.x, evt.pos.y);
+        shape.setColor(0xffff00)
+      },
+      keyDown: (game, key) => {
+        if (key == "f") {
+          game.toggleFullscreen();
+        }
+      }
+    });
   </script>
 </body>
