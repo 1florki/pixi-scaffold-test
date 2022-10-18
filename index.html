@@ -22,14 +22,17 @@
 
   <script src="./helper/vector.js"></script>
   <script src="./helper/particles.js"></script>
+  <script src="./helper/noise.js"></script>
+  <script src="./landscape.js"></script>
 
   <script>
     let moving;
 
     let backShapes = [];
 
-    let ps;
-    
+    let ps, l;
+
+
     let setup = (game) => {
       let rnd = new Srand(10);
 
@@ -52,6 +55,10 @@
         alpha: 0.5
       });
 
+      ps = new ParticleSystem({
+        parent: game.canvas
+      });
+
       moving = new Shape({
         s: 100,
         parent: game.canvas,
@@ -68,7 +75,8 @@
         noStroke: true
       });
 
-      ps = new ParticleSystem({parent: game.canvas});
+      l = new Landscape({parent: game.canvas, noise: {min: 0, scl: 0.005, oct: 2, per: 0.5, sharpness: -0.5}});
+      l.graphic.position.set(-400, 200)
     }
 
     let loop = (game, dt, total, controls) => {
@@ -84,9 +92,18 @@
           s.move(0, dt * 0.1);
         }
       }
-      
-      ps.add({x: (Math.random() - 0.5) * game.size.x, y: -game.size.y / 2, velY: dt * (Math.random() + 0.5), maxAge: 1000, drag: 0.98, size: 20, vanish: true})
+
+      ps.add({
+        x: (Math.random() - 0.5) * game.size.x,
+        y: -game.size.y / 2,
+        velY: dt * (Math.random() + 0.5),
+        maxAge: 1000,
+        size: 3
+      })
       ps.update(dt);
+      
+      l.noise.shiftBy(1, 0, 0.1);
+      l.draw();
     }
     let wrapper = new PixiWrapper({
       setup: setup,
@@ -98,6 +115,16 @@
       pan: (game, evt) => {
         shape.setPosition(evt.pos.x, evt.pos.y);
         shape.setColor(0x0000ff)
+        ps.add({
+          x: evt.pos.x,
+          y: evt.pos.y,
+          velY: (Math.random() - 0.5) * 10,
+          velX: (Math.random() - 0.5) * 10,
+          maxAge: 1000,
+          drag: 0.98,
+          size: 3,
+          vanish: true
+        })
       },
       doubletap: (game, evt) => {
         shape.setPosition(evt.pos.x, evt.pos.y);

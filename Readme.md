@@ -19,6 +19,7 @@
 - check for aabb box intersection
 - check intersection between two lines
 - include noise
+- tap/press/double tap ON object (rect only)
 
 
 #### maybe features:
@@ -29,10 +30,16 @@
 - motion controls (gyro)
 - mouse position?
 - animated object class? (multiple animations, select animation to play)
+- add strings for swipe and pan direction? (+ set accepted swipe/pan directions)
+- onscreen controls (joystick, button)
+- easy way to play sounds (background music + effects)
+- easy to import and use characters / etc
+- procedural 2d backgrounds?
+- easily save highscore etc
+- easy font access (pixelated)
 
 
 #### todo
-- [ ] add strings for swipe and pan direction?
 - [ ] add menu
 - [ ] incorporate particle system into wrapper?
 - [ ] add features to particle system
