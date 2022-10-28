@@ -130,13 +130,17 @@
         }
         this.setPosition(this.foodItem, this.food.x, this.food.y);
       }
-
+/*
       tap(px) {
         if(px.scene == "menu") px.scene = "game";
         if(px.scene == "gameover") {
           this.setupGame(px);
           px.scene = "game";
         }
+      }*/
+      
+      restart(px) {
+        this.setupGame(px);
       }
       
       loop(px, dt) {
@@ -220,12 +224,7 @@
         }
       }
     }
-    
-var font = new FontFace('pixeloid_sansregular', 'url(./pixeloidsans.woff)');
-
-font.load().then(function () {
     new PixiEngine(new SnakeGame());
-});
     
   </script>
 </body>

@@ -194,6 +194,15 @@ class PixiEngine {
       y: opts.height || opts.h || opts.size || 400
     }
     
+    var font = new FontFaceObserver('pixeloid_sansregular', 'url(./pixeloidsans.woff)');
+
+    font.load().then(() => {
+        this.setup();
+    });
+  }
+  
+  setup() {
+    
     // setup app and root container
     let appOpts = {
       antialiasing: opts.antialiasing != undefined ? opts.antialiasing : true,
@@ -227,6 +236,8 @@ class PixiEngine {
     this.alwaysShowGameScene = this.opts.alwaysShowGameScene != false
     this.scenes = {};
     
+    this.title = this.opts.title || "Game"
+    
     this.activeSceneName = "menu"
     
     this.gameScene = new PixiScene();
@@ -235,19 +246,35 @@ class PixiEngine {
     
     this.menuScene = new PixiScene();
     this.addScene("menu", this.menuScene);
-    
-    this.title = this.opts.title || "Game"
-    
     if(this.opts.customMenu) {
       this.opts.customMenu(this);
     } else {
       this.createShape({w: this.w, h: this.h, color: 0, alpha: 0.5})
       this.createShape({text: this.title, y: -this.h * 0.2, textColor: 0xffffff});
+      this.createShape({text: "start", textColor: 0xffffff, stroke: 0xffffff, w: 80, h: 30, textSize: 20, tap: (px) => { px.scene = "game" }});
     }
     
     this.gameOverScene = new PixiScene();
     this.addScene("gameover", this.gameOverScene);
-    
+    if(this.opts.customGameOver) {
+      this.scene = "gameover"
+      this.opts.customGameOver(this);
+      this.scene = "menu"
+    } else {
+      this.scene = "gameover"
+      
+      this.createShape({w: this.w, h: this.h, color: 0, alpha: 0.5})
+      this.createShape({text: "Game Over! :(", y: -this.h * 0.2, textColor: 0xffffff});
+      
+      
+      this.createShape({text: "play again", textColor: 0xffffff, stroke: 0xffffff, w: 130, h: 30, textSize: 20, 
+                        tap: (px) => { 
+                          if(px.opts.restart) px.opts.restart(this);
+                          px.scene = "game" }});
+      
+      
+      this.scene = "menu"
+    }
     
     // setup stats
     if(this.opts.stats != false) {
