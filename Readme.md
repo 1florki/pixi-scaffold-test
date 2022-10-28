@@ -11,15 +11,17 @@
 - easier way to draw/update shapes
 - simple particle system
 - vector class
+- include noise
+- tap/press/double tap ON object (rect only)
 
 
 #### future features:
 
+- shape: mouseover, pointer-down
+- start + end pan event
 - default menu (play, pause)
 - check for aabb box intersection
 - check intersection between two lines
-- include noise
-- tap/press/double tap ON object (rect only)
 
 
 #### maybe features:
@@ -36,8 +38,9 @@
 - easy to import and use characters / etc
 - procedural 2d backgrounds?
 - easily save highscore etc
-- easy font access (pixelated)
-
+- easy font access (pixelated?)
+- collision detection?
+- touch/mouse down?
 
 #### todo
 - [ ] add menu
@@ -46,7 +49,6 @@
 - [ ] load images/gifs
 - [ ] get most up to date noise
 - [ ] documentation
-
 
 #### particle system features
 - [ ] spawn area (will spawn particles without given position somewhere in that area) (rect/circle/line)
