@@ -28,12 +28,12 @@ class Shape extends PIXI.Graphics {
     super();
     opts = opts || {};
     
-    this.fillColor = opts.color || opts.c || 0;
+    this.fillColor = opts.color || opts.fill || opts.c  || 0;
     this.fillAlpha = opts.alpha != undefined ? opts.alpha : (opts.a != undefined ? opts.a : (opts.color == undefined && opts.c == undefined ? 0 : 1));
     
     this._strokeColor = opts.strokeColor || opts.stroke || 0;
     this.strokeWeight = opts.strokeWeight || opts.weight || (opts.noStroke == true ? 0 : 1);
-    this.strokeAlpha = opts.strokeAlpha || (opts.strokeColor || opts.stroke == undefined ? 0 : 1);
+    this.strokeAlpha = opts.strokeAlpha || (opts.strokeColor == undefined && opts.stroke == undefined ? 0 : 1);
     
     this.size = {x:  opts.width || opts.w || opts.size || opts.s || 10, y: opts.height || opts.h || opts.size || opts.s || 10}
     
@@ -50,9 +50,9 @@ class Shape extends PIXI.Graphics {
     
     if(opts.text) {
       this._text = new PIXI.Text(opts.text, {fontFamily : opts.fontFamily || 'Arial', fontSize: opts.textSize || 24, fill : opts.textColor || 0x888888, align : opts.textAlign || 'center'});
-      let bounds = this._text.getLocalBounds();
-      this._text.position.set(-bounds.width / 2, -bounds.height / 2);
-
+      this.textAlign = opts.textAlign || "center";
+      this.text = opts.text;
+      
       this.addChild(this._text);
     }
     
@@ -70,6 +70,9 @@ class Shape extends PIXI.Graphics {
     this._text.text = text;
     let bounds = this._text.getLocalBounds();
     this._text.position.set(-bounds.width / 2, -bounds.height / 2);
+    if(this.textAlign == "right") this._text.position.x = -bounds.width;
+    if(this.textAlign == "left") this._text.position.x = 0;
+    
   }
   get text() {
     return this._text.text;
@@ -186,8 +189,8 @@ class PixiEngine {
     this.opts = opts;
     
     this.size = {
-      x: opts.x || 800,
-      y: opts.y || 400
+      x: opts.width || opts.w || opts.size || 800,
+      y: opts.height || opts.h || opts.size || 400
     }
     
     // setup app and root container
@@ -206,6 +209,8 @@ class PixiEngine {
     this.root = new PIXI.Container();
     this.app.stage.addChild(this.root);
 
+    this.centerZero = this.opts.centerZero;
+    
     this.resize();
     
     // setup RNG and noise
@@ -404,13 +409,19 @@ class PixiEngine {
   }
   
   createShape(opts, sceneName) {
-    if(sceneName == undefined) return this.activeScene().createShape(opts);
-    return this.scenes[sceneName].createShape(opts);
+    let scene = sceneName != undefined ? this.scenes[sceneName] : this.activeScene();
+    return scene.createShape(opts);
   }
   addShape(s, sceneName) {
-    if(sceneName == undefined) return this.activeScene().addShape(s);
-    return this.scenes[sceneName].addShape(s);
+    let scene = sceneName != undefined ? this.scenes[sceneName] : this.activeScene();
+    return scene.addShape(s);
   }
+  
+  removeAll(sceneName) {
+    let scene = sceneName != undefined ? this.scenes[sceneName] : this.activeScene();
+    return scene.removeChildren();
+  }
+  
   
   get scene() {
     return this.activeSceneName;
@@ -423,6 +434,12 @@ class PixiEngine {
     return this.size.x;
   }
   get height() {
+    return this.size.y;
+  }
+  get w() {
+    return this.size.x;
+  }
+  get h() {
     return this.size.y;
   }
   
@@ -502,7 +519,9 @@ class PixiEngine {
 
     //this part resizes the canvas but keeps ratio the same
     this.app.renderer.resize(w, h);
-    this.root.transform.position.set(w * 0.5, h * 0.5);
+    
+    if(this.centerZero) this.root.transform.position.set(w * 0.5, h * 0.5);
+    else this.root.transform.position.set(w * 0.5 - this.w * this.scl / 2, h * 0.5 - this.h * this.scl / 2);
     this.root.transform.scale.set(this.scl, this.scl);
   }
 }

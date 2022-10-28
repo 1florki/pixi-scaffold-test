@@ -2,33 +2,35 @@
 
 #### features:
 
-- automatically scales your canvas
-- toggle fullscreen
-- gesture recognition: tap, doubletap, swipe, press, pan, rotate, pinch
-- keydown and up event
-- show/hide stats
-- random seeded number generator
-- easier way to draw/update shapes
-- simple particle system
-- vector class
-- include noise
-- tap/press/double tap ON object (rect only)
+- [x] automatically scales your canvas
+- [x] toggle fullscreen
+- [x] gesture recognition: tap, doubletap, swipe, press, pan, rotate, pinch
+- [x] keydown and up event
+- [x] show/hide stats
+- [x] random seeded number generator
+- [x] easier way to draw/update shapes
+- [x] vector class
+- [x] include noise
+- [x] tap/press/double tap ON object (rect only)
+- [x] start + end pan event
+- [x] more gestures (pinch, rotate)
 
 
 #### future features:
 
+- convert hsl to rgb
 - shape: mouseover, pointer-down
-- start + end pan event
 - default menu (play, pause)
 - check for aabb box intersection
 - check intersection between two lines
-
+- simple particle system
+- game over screen (score, highscore, play again)
+- save high score
 
 #### maybe features:
 
 - loading screen?
 - support for phone controls? (via qr code)
-- [x] more gestures (pinch, rotate)
 - motion controls (gyro)
 - mouse position?
 - animated object class? (multiple animations, select animation to play)
