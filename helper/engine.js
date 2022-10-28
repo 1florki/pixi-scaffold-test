@@ -269,7 +269,7 @@ class PixiEngine {
       this.createShape({text: this.title, y: -80, textColor: 0xffffff, textSize: 40});
       this.createShape({text: "start", textColor: 0xffffff, stroke: 0xffffff, w: 80, h: 30, textSize: 20, tap: (px) => { px.scene = "game" }});
       
-      if(this.opts.help) this.createShape({text: this.opts.help, y: 60, textSize: 15})
+      if(this.opts.help) this.createShape({text: this.opts.help, y: 100, textSize: 14})
     }
     
     this.gameOverScene = new PixiScene();
