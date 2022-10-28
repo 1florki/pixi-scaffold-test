@@ -26,6 +26,9 @@
 - simple particle system
 - game over screen (score, highscore, play again)
 - save high score
+- preload fonts
+- preload images
+- game over screen (+ restart game)
 
 #### maybe features:
 
@@ -43,6 +46,8 @@
 - easy font access (pixelated?)
 - collision detection?
 - touch/mouse down?
+- peer2peer support?
+- three.js version?
 
 #### todo
 - [ ] add menu
@@ -56,3 +61,4 @@
 - [ ] spawn area (will spawn particles without given position somewhere in that area) (rect/circle/line)
 - [ ] spawn a bunch of particles with random direction on point
 - [ ] set a force (multiple forces?) that applies to all particles
+- [ ] forces that only affect particles in area (circle or rectangle)

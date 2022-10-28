@@ -10,7 +10,18 @@
   <script src="./helper/helper.js"></script>
   <script src="./helper/engine.js"></script>
 
+  <style>
+  
+@font-face {
+    font-family: 'pixeloid_sansregular';
+    src: url('pixeloidsans.woff2') format('woff2'),
+         url('pixeloidsans.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
 
+}
+  </style>
+  
   <script>
     class SnakeGame {
       constructor(opts) {
@@ -29,32 +40,45 @@
         this.h = this.gridY * this.cellSize + 60;
         
         this.centerZero = true
+        // 7, 9
+        this.noise = {scale: 0.1, pow: 2, seed: 15}
+        
+        this.title = "Snake"
       }
 
       setup(px) {
         this.px = px;
         
+        
+        this.setupGame(px);
+        
+        px.scene = "menu"
+      }
+      
+      setupGame(px) {
+        
+        px.scene = "game"
         px.removeAll();
         
-        /*
-        px.createShape({
-          w: px.w,
-          h: px.h,
-          color: 0xffffff,
-          alpha: 0.05
-        })*/
-        
+        let obstacles = [];
         // draw grid
         for (let x = 0; x < this.gridX; x++) {
+          obstacles.push([]);
           for (let y = 0; y < this.gridY; y++) {
+            obstacles[x][y] = px.noise(this.gridX < this.gridY ? x : y, this.gridX < this.gridY ? y : x) > 0;
+            
             let s = px.createShape({
               s: this.cellSize,
               strokeWeight: 1.2,
-              stroke: 0x777777,
+              stroke: obstacles[x][y] ? 0x555555 : 0x777777,
+              color: obstacles[x][y] ? 0x555555 : 0,
             });
+            s.zIndex = obstacles[x][y] ? 100 : 0
             this.setPosition(s, x, y);
           }
         }
+        
+        this.obstacles = obstacles;
         
         this.dir = new Vector(1, 0);
         this.newDir = new Vector(1, 0);
@@ -69,12 +93,14 @@
         this.foodItem = px.createShape({s: this.cellSize + 1, color: 0xffffff});
         this.placeFood(px);
         
-        this.scoreItem = px.createShape({y: this.h / 2 - 20, x: this.w / 2 - 5, text: "10000", textColor: 0xffffff, textAlign: "right"})
+        this.scoreItem = px.createShape({y: this.h / 2 - 20, x: this.w / 2 - 5, text: "0", textColor: 0xffffff, textAlign: "right"})
       }
       
       updateSnake() {
         while(this.snakeItems.length < this.snake.length) {
-          this.snakeItems.push(this.px.createShape({s: this.cellSize, color: 0x00ffff, alpha: 1, stroke: 0}));
+          let s = this.px.createShape({s: this.cellSize, color: 0x00ffff, alpha: 1, stroke: 0});
+          s.zIndex = 200
+          this.snakeItems.push(s);
         }
         
         for(let i = 0; i < this.snake.length && i < this.snakeItems.length; i++) {
@@ -91,6 +117,11 @@
       placeFood() {
         this.food = new Vector(Math.floor(this.px.random(this.gridX)), Math.floor(this.px.random(this.gridY)));
         
+        if(this.obstacles[this.food.x][this.food.y]) {
+          this.placeFood();
+          return;
+        }
+        
         for(let s of this.snake) {
           if(s.x == this.food.x && s.y == this.food.y) {
             this.placeFood();
@@ -100,9 +131,20 @@
         this.setPosition(this.foodItem, this.food.x, this.food.y);
       }
 
+      tap(px) {
+        if(px.scene == "menu") px.scene = "game";
+        if(px.scene == "gameover") {
+          this.setupGame(px);
+          px.scene = "game";
+        }
+      }
+      
       loop(px, dt) {
+        if(px.scene != "game") return;
+        
+        
         this.frameTime = (this.frameTime || 0) + dt;
-        if(this.frameTime < 166) return;
+        if(this.frameTime < 200) return;
         
         this.frameTime = 0;
         
@@ -131,13 +173,24 @@
           this.grow -= 1;
         }
         
+        this.scoreItem.text = this.snake.length
+        
+        // check for death
         for(let i = 1; i < this.snake.length; i++) {
-          if(this.snake[i].x == newHead.x && this.snake[i].y == newHead.y) this.setup(this.px);
+          if(this.snake[i].x == newHead.x && this.snake[i].y == newHead.y) {
+            px.scene = "gameover"
+            return
+          }
         }
+        if(this.obstacles[newHead.x][newHead.y]) {
+          px.scene = "gameover"
+          return
+          
+        }
+        
         
         this.updateSnake();
         
-        this.scoreItem.text = this.snake.length
       }
 
 
@@ -167,7 +220,12 @@
         }
       }
     }
+    
+var font = new FontFace('pixeloid_sansregular', 'url(./pixeloidsans.woff)');
 
+font.load().then(function () {
     new PixiEngine(new SnakeGame());
+});
+    
   </script>
 </body>

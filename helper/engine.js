@@ -20,7 +20,7 @@ let opts = {
   doubletap: (game, event) => {},
   press: (game, event) => {},
   
-  alwaysShowGameScene: false,
+  alwaysShowGameScene: true,
 }
 
 class Shape extends PIXI.Graphics {
@@ -49,7 +49,7 @@ class Shape extends PIXI.Graphics {
     this.press = opts.press;
     
     if(opts.text) {
-      this._text = new PIXI.Text(opts.text, {fontFamily : opts.fontFamily || 'Arial', fontSize: opts.textSize || 24, fill : opts.textColor || 0x888888, align : opts.textAlign || 'center'});
+      this._text = new PIXI.Text(opts.text, {fontFamily : opts.fontFamily || 'pixeloid_sansregular', fontSize: opts.textSize || 24, fill : opts.textColor || 0x888888, align : opts.textAlign || 'center'});
       this.textAlign = opts.textAlign || "center";
       this.text = opts.text;
       
@@ -159,6 +159,7 @@ class PixiScene extends PIXI.Container {
   constructor(opts) {
     super();
     opts = opts || {};
+    this.sortableChildren = true
   }
   
   createShape(opts) {
@@ -218,21 +219,34 @@ class PixiEngine {
     this.RNG = new Srand(this._seed);
     
     this._noiseSettings = this.opts.noise || {};
-    this._noiseSettings.seed = this.random(0, 1000000);
+    if(this._noiseSettings.seed == undefined) this._noiseSettings.seed = this.random(0, 1000000);
     
     this._noise = new Noise(this._noiseSettings)
     
     // setup menu scene and game scene
+    this.alwaysShowGameScene = this.opts.alwaysShowGameScene != false
     this.scenes = {};
     
     this.activeSceneName = "menu"
     
     this.gameScene = new PixiScene();
-    this.gameScene.visible = (this.opts.alwaysShowGameScene == true);
+    this.gameScene.visible = this.alwaysShowGameScene
     this.addScene("game", this.gameScene)
     
     this.menuScene = new PixiScene();
     this.addScene("menu", this.menuScene);
+    
+    this.title = this.opts.title || "Game"
+    
+    if(this.opts.customMenu) {
+      this.opts.customMenu(this);
+    } else {
+      this.createShape({w: this.w, h: this.h, color: 0, alpha: 0.5})
+      this.createShape({text: this.title, y: -this.h * 0.2, textColor: 0xffffff});
+    }
+    
+    this.gameOverScene = new PixiScene();
+    this.addScene("gameover", this.gameOverScene);
     
     
     // setup stats
@@ -262,7 +276,7 @@ class PixiEngine {
   switchToScene(name) {
     this.activeScene().visible = false;
     
-    if(this.scene == "game") this.activeScene().visible = (this.opts.alwaysShowGameScene == true);
+    if(this.scene == "game") this.activeScene().visible = this.alwaysShowGameScene;
     
     this.activeSceneName = name;
     
@@ -446,7 +460,8 @@ class PixiEngine {
   // set noise options
   set noiseSetting(opts) {
     this._noiseSettings = opts || {};
-    this._noiseSettings.seed = this.random(0, 1000000);
+    if(this._noiseSettings.seed == undefined) this._noiseSettings.seed = this.random(0, 1000000);
+    
     this._noise = new Noise(this._noiseSettings);
   }
   
