@@ -21,6 +21,8 @@ let opts = {
   press: (game, event) => {},
   
   alwaysShowGameScene: true,
+  
+  compareScore: (a, b) => { return a > b }
 }
 
 class Shape extends PIXI.Graphics {
@@ -49,7 +51,7 @@ class Shape extends PIXI.Graphics {
     this.press = opts.press;
     
     if(opts.text) {
-      this._text = new PIXI.Text(opts.text, {fontFamily : opts.fontFamily || 'pixeloid_sansregular', fontSize: opts.textSize || 24, fill : opts.textColor || 0x888888, align : opts.textAlign || 'center'});
+      this._text = new PIXI.Text(opts.text, {fontFamily : opts.fontFamily || 'pixeloid_sansregular', fontSize: opts.textSize || 24, fill : opts.textColor || 0xffffff, align : opts.textAlign || 'center'});
       this.textAlign = opts.textAlign || "center";
       this.text = opts.text;
       
@@ -57,6 +59,10 @@ class Shape extends PIXI.Graphics {
     }
     
     this.setPosition(opts.x || 0, opts.y || 0);
+    
+    this.zIndex = opts.zIndex;
+    
+    this.name = opts.name;
     
     if(opts.parent) opts.parent.addChild(this);
   }
@@ -182,6 +188,12 @@ class PixiScene extends PIXI.Container {
     
     return passed;
   }
+  
+  getShape(name) {
+    for(let c of this.children) {
+      if(c.name == name) return c;
+    }
+  }
 }
 
 class PixiEngine {
@@ -194,7 +206,9 @@ class PixiEngine {
       y: opts.height || opts.h || opts.size || 400
     }
     
-    var font = new FontFaceObserver('pixeloid_sansregular', 'url(./pixeloidsans.woff)');
+    
+    var face = new FontFace('pixeloid_sansregular', 'url(./pixeloidsans.woff)');
+    var font = new FontFaceObserver('pixeloid_sansregular');
 
     font.load().then(() => {
         this.setup();
@@ -207,11 +221,13 @@ class PixiEngine {
     let appOpts = {
       antialiasing: opts.antialiasing != undefined ? opts.antialiasing : true,
       transparent: opts.transparent != undefined ? opts.transparent : true,
-      resolution: window.devicePixelRatio || 1
+      resolution: window.devicePixelRatio || 1,
     }
     if(this.opts.backgroundColor) appOpts.backgroundColor = this.opts.backgroundColor;
 
     this.app = new PIXI.Application(appOpts);
+    PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
+    
     this.app.view.style.left = "0px";
     this.app.view.style.top = "0px";
     document.body.appendChild(this.app.view);
@@ -250,8 +266,10 @@ class PixiEngine {
       this.opts.customMenu(this);
     } else {
       this.createShape({w: this.w, h: this.h, color: 0, alpha: 0.5})
-      this.createShape({text: this.title, y: -this.h * 0.2, textColor: 0xffffff});
+      this.createShape({text: this.title, y: -80, textColor: 0xffffff, textSize: 40});
       this.createShape({text: "start", textColor: 0xffffff, stroke: 0xffffff, w: 80, h: 30, textSize: 20, tap: (px) => { px.scene = "game" }});
+      
+      if(this.opts.help) this.createShape({text: this.opts.help, y: 60, textSize: 15})
     }
     
     this.gameOverScene = new PixiScene();
@@ -264,14 +282,16 @@ class PixiEngine {
       this.scene = "gameover"
       
       this.createShape({w: this.w, h: this.h, color: 0, alpha: 0.5})
-      this.createShape({text: "Game Over! :(", y: -this.h * 0.2, textColor: 0xffffff});
-      
+      this.createShape({text: "Game Over! :(", y: -80, textColor: 0xffffff, textSize: 35});
       
       this.createShape({text: "play again", textColor: 0xffffff, stroke: 0xffffff, w: 130, h: 30, textSize: 20, 
                         tap: (px) => { 
                           if(px.opts.restart) px.opts.restart(this);
                           px.scene = "game" }});
       
+      this.createShape({text: "highscore: 0", textColor: 0xffffff, y: 50, textSize:16, name: "highscore"});
+      this.createShape({text: "score: 0", textColor: 0xffffff, y: 80, textSize: 16, name: "score"});
+      this.createShape({text: "new highscore!", textColor: 0xff0000, y: 120, textSize: 25, name: "newhighscore"});
       
       this.scene = "menu"
     }
@@ -289,6 +309,9 @@ class PixiEngine {
     let ticker = PIXI.Ticker.shared;
     ticker.add(this.loop.bind(this));
     
+    this.highScore = localStorage.getItem('highScore') || 0;
+    this.compareScore = this.opts.compareScore || ((a, b) => { return a > b });
+    
     // custom setup stuff
     if(this.opts.setup) {
       this.opts.setup(this);
@@ -301,15 +324,45 @@ class PixiEngine {
   }
   
   switchToScene(name) {
-    this.activeScene().visible = false;
+    this.activeScene.visible = false;
     
-    if(this.scene == "game") this.activeScene().visible = this.alwaysShowGameScene;
+    if(this.scene == "game") this.activeScene.visible = this.alwaysShowGameScene;
     
     this.activeSceneName = name;
     
-    this.activeScene().visible = true;
+    this.activeScene.visible = true;
     
-    return this.activeScene();
+    return this.activeScene;
+  }
+  
+  menu() {
+    this.scene = "menu"
+  }
+  
+  game() {
+    this.scene = "game"
+  }
+  
+  gameover() {
+    this.scene = "gameover"
+    
+    if(this.highScore != undefined && this.score != undefined) {
+      if(this.compareScore(this.score, this.highScore)) {
+        this.highScore = this.score;
+        localStorage.setItem("highScore", this.highScore);
+        console.log("set high score");
+        this.getShape("newhighscore").visible = true
+      } else {
+        
+        this.getShape("newhighscore").visible = false
+      }
+      this.getShape("highscore").text = "highscore: " + this.highScore;
+      this.getShape("score").text = "score: " + this.score;
+    }
+  }
+  
+  getShape(name) {
+    return this.activeScene.getShape(name);
   }
   
   loop() {
@@ -340,7 +393,7 @@ class PixiEngine {
       this.controls.keys[event.key] = true;
       
       if(this.opts.keyDown) {
-        this.opts.keyDown(this, event.key, event);
+        this.opts.keyDown(this, event.key.toLowerCase(), event);
       }
     }, false);
     
@@ -439,10 +492,10 @@ class PixiEngine {
   }
   
   passEvent(evt, evtName) {
-    return this.activeScene().passEvent(evt, evtName, this);
+    return this.activeScene.passEvent(evt, evtName, this);
   }
   
-  activeScene() {
+  get activeScene() {
     return this.scenes[this.activeSceneName];
   }
   addToScene(name, child) {
@@ -450,16 +503,16 @@ class PixiEngine {
   }
   
   createShape(opts, sceneName) {
-    let scene = sceneName != undefined ? this.scenes[sceneName] : this.activeScene();
+    let scene = sceneName != undefined ? this.scenes[sceneName] : this.activeScene;
     return scene.createShape(opts);
   }
   addShape(s, sceneName) {
-    let scene = sceneName != undefined ? this.scenes[sceneName] : this.activeScene();
+    let scene = sceneName != undefined ? this.scenes[sceneName] : this.activeScene;
     return scene.addShape(s);
   }
   
   removeAll(sceneName) {
-    let scene = sceneName != undefined ? this.scenes[sceneName] : this.activeScene();
+    let scene = sceneName != undefined ? this.scenes[sceneName] : this.activeScene;
     return scene.removeChildren();
   }
   

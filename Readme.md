@@ -14,13 +14,13 @@
 - [x] tap/press/double tap ON object (rect only)
 - [x] start + end pan event
 - [x] more gestures (pinch, rotate)
+- [x] default menu (play)
 
 
 #### future features:
 
 - convert hsl to rgb
 - shape: mouseover, pointer-down
-- default menu (play, pause)
 - check for aabb box intersection
 - check intersection between two lines
 - simple particle system
@@ -39,7 +39,7 @@
 - animated object class? (multiple animations, select animation to play)
 - add strings for swipe and pan direction? (+ set accepted swipe/pan directions)
 - onscreen controls (joystick, button)
-- easy way to play sounds (background music + effects)
+- easy way to play sounds (background music + effects) => https://howlerjs.com/
 - easy to import and use characters / etc
 - procedural 2d backgrounds?
 - easily save highscore etc

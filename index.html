@@ -44,20 +44,20 @@
         this.noise = {scale: 0.1, pow: 2, seed: 15}
         
         this.title = "Snake"
+        
+        this.help = "swipe or use w, a, s, d to control snake.\neat food. avoid obstacles.";
       }
 
       setup(px) {
         this.px = px;
         
-        
         this.setupGame(px);
-        
-        px.scene = "menu"
+        px.menu();
       }
       
       setupGame(px) {
+        px.game();
         
-        px.scene = "game"
         px.removeAll();
         
         let obstacles = [];
@@ -90,7 +90,7 @@
         this.grow = 3;
         
         
-        this.foodItem = px.createShape({s: this.cellSize + 1, color: 0xffffff});
+        this.foodItem = px.createShape({s: this.cellSize, color: 0xffffff, zIndex: 5});
         this.placeFood(px);
         
         this.scoreItem = px.createShape({y: this.h / 2 - 20, x: this.w / 2 - 5, text: "0", textColor: 0xffffff, textAlign: "right"})
@@ -130,14 +130,6 @@
         }
         this.setPosition(this.foodItem, this.food.x, this.food.y);
       }
-/*
-      tap(px) {
-        if(px.scene == "menu") px.scene = "game";
-        if(px.scene == "gameover") {
-          this.setupGame(px);
-          px.scene = "game";
-        }
-      }*/
       
       restart(px) {
         this.setupGame(px);
@@ -175,21 +167,18 @@
           this.snake.pop();
         } else {
           this.grow -= 1;
+          this.scoreItem.text = this.snake.length;
+          px.score = this.snake.length;
         }
-        
-        this.scoreItem.text = this.snake.length
         
         // check for death
         for(let i = 1; i < this.snake.length; i++) {
           if(this.snake[i].x == newHead.x && this.snake[i].y == newHead.y) {
-            px.scene = "gameover"
-            return
+            return px.gameover();
           }
         }
         if(this.obstacles[newHead.x][newHead.y]) {
-          px.scene = "gameover"
-          return
-          
+          return px.gameover();
         }
         
         
@@ -199,6 +188,8 @@
 
 
       swipe(px, evt) {
+        if(px.scene != "game") return;
+        
         if (evt.direction == 4) {
           this.newDir.set(1, 0);
         } else if (evt.direction == 8) {
@@ -211,6 +202,12 @@
       }
 
       keyDown(px, key) {
+        if(key == "f") {
+          px.toggleFullscreen();
+        }
+        
+        //if(px.scene != "game") return;
+        
         if (key == "d") {
           this.newDir.set(1, 0);
         } else if (key == "a") {
@@ -219,8 +216,6 @@
           this.newDir.set(0, -1);
         } else if (key == "s") {
           this.newDir.set(0, 1);
-        } else if(key == "f") {
-          px.toggleFullscreen();
         }
       }
     }
