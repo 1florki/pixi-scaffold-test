@@ -79,7 +79,7 @@ class Shape extends PIXI.Graphics {
   }
   
   set color(c) {
-    this.color = c;
+    this.fillColor = c;
     this.redraw();
   }
   

@@ -19,8 +19,14 @@
         this.gridY = 30;
         this.cellSize = 20;
 
-        this.w = this.gridX * this.cellSize + 60;
-        this.h = this.gridY * this.cellSize + 40;
+        if(window.innerWidth > window.innerHeight) {
+          let a = this.gridX;
+          this.gridX = this.gridY;
+          this.gridY = a;
+        }
+        
+        this.w = this.gridX * this.cellSize + 40;
+        this.h = this.gridY * this.cellSize + 60;
         
         this.centerZero = true
       }
@@ -30,12 +36,13 @@
         
         px.removeAll();
         
+        /*
         px.createShape({
           w: px.w,
           h: px.h,
           color: 0xffffff,
-          alpha: 0.1
-        })
+          alpha: 0.05
+        })*/
         
         // draw grid
         for (let x = 0; x < this.gridX; x++) {
@@ -43,7 +50,7 @@
             let s = px.createShape({
               s: this.cellSize,
               strokeWeight: 1.2,
-              stroke: 0xffffff,
+              stroke: 0x777777,
             });
             this.setPosition(s, x, y);
           }
@@ -59,10 +66,10 @@
         this.grow = 3;
         
         
-        this.foodItem = px.createShape({s: this.cellSize + 1, color: 0xff0000});
+        this.foodItem = px.createShape({s: this.cellSize + 1, color: 0xffffff});
         this.placeFood(px);
         
-        this.scoreItem = px.createShape({y: this.h / 2 - 20, x: this.w / 2 - 5, text: "0", textColor: 0xffffff, textAlign: "right"})
+        this.scoreItem = px.createShape({y: this.h / 2 - 20, x: this.w / 2 - 5, text: "10000", textColor: 0xffffff, textAlign: "right"})
       }
       
       updateSnake() {
@@ -72,6 +79,7 @@
         
         for(let i = 0; i < this.snake.length && i < this.snakeItems.length; i++) {
           this.setPosition(this.snakeItems[i], this.snake[i].x, this.snake[i].y);
+          this.snakeItems[i].color = MathUtils.hsl2hex(((i + this.px.totalTime * 0.001) / 40) % 1, 1, 0.5);
         }
       }
       
