@@ -16,7 +16,7 @@
       constructor(opts) {
         opts = opts || {};
         this.gridX = 15;
-        this.gridY = 25;
+        this.gridY = 30;
         this.cellSize = 20;
 
         this.w = this.gridX * this.cellSize + 60;
@@ -42,8 +42,8 @@
           for (let y = 0; y < this.gridY; y++) {
             let s = px.createShape({
               s: this.cellSize,
-              strokeWeight: 2,
-              stroke: 0xaaaaaa,
+              strokeWeight: 1.2,
+              stroke: 0xffffff,
             });
             this.setPosition(s, x, y);
           }
@@ -59,7 +59,7 @@
         this.grow = 3;
         
         
-        this.foodItem = px.createShape({s: this.cellSize + 2, color: 0xff0000});
+        this.foodItem = px.createShape({s: this.cellSize + 1, color: 0xff0000});
         this.placeFood(px);
         
         this.scoreItem = px.createShape({y: this.h / 2 - 20, x: this.w / 2 - 5, text: "0", textColor: 0xffffff, textAlign: "right"})
@@ -67,7 +67,7 @@
       
       updateSnake() {
         while(this.snakeItems.length < this.snake.length) {
-          this.snakeItems.push(this.px.createShape({s: this.cellSize + 2, color: 0xffffff, alpha: 0.5}));
+          this.snakeItems.push(this.px.createShape({s: this.cellSize, color: 0x00ffff, alpha: 1, stroke: 0}));
         }
         
         for(let i = 0; i < this.snake.length && i < this.snakeItems.length; i++) {
@@ -94,9 +94,9 @@
 
       loop(px, dt) {
         this.frameTime = (this.frameTime || 0) + dt;
-        if(this.frameTime < 200) return;
+        if(this.frameTime < 166) return;
         
-        this.frameTime = 0;
+        this.frameTime -= 166;
         
         let head = this.snake[0];
         
