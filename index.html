@@ -96,7 +96,7 @@
         this.frameTime = (this.frameTime || 0) + dt;
         if(this.frameTime < 166) return;
         
-        this.frameTime -= 166;
+        this.frameTime = 0;
         
         let head = this.snake[0];
         
