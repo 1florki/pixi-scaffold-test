@@ -5,10 +5,11 @@
 <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="apple-mobile-web-app-capable" content="yes">
 
-<body style="background-color:black; margin: 0; height: 100%; overflow: hidden">
+<body style="background-color:#000000; margin: 0; height: 100%; overflow: hidden">
 
   <script src="./helper/helper.js"></script>
   <script src="./helper/engine.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pixi-filters@latest/dist/pixi-filters.js"></script>
 
   <style>
   
@@ -70,13 +71,16 @@
             let s = px.createShape({
               s: this.cellSize,
               strokeWeight: 1.2,
-              stroke: obstacles[x][y] ? 0x555555 : 0x777777,
-              color: obstacles[x][y] ? 0x555555 : 0,
+              stroke: obstacles[x][y] ? 0 : 0x434343,
+              color: obstacles[x][y] ? 0 : 0x111111,
             });
             s.zIndex = obstacles[x][y] ? 100 : 0
             this.setPosition(s, x, y);
           }
         }
+        
+        
+        px.activeScene.filters = [new PIXI.filters.AdvancedBloomFilter({threshold: 0.3, quality: 8, bloomScale: 0.5})];
         
         this.obstacles = obstacles;
         
@@ -98,7 +102,7 @@
       
       updateSnake() {
         while(this.snakeItems.length < this.snake.length) {
-          let s = this.px.createShape({s: this.cellSize, color: 0x00ffff, alpha: 1, stroke: 0});
+          let s = this.px.createShape({s: this.cellSize, color: 0x00ffff, alpha: 1});
           s.zIndex = 200
           this.snakeItems.push(s);
         }
