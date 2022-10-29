@@ -46,7 +46,7 @@
         
         this.title = "Snake"
         
-        this.help = "swipe or use w/a/s/d to control snake.\neat food. avoid obstacles and yourself.";
+        this.help = "swipe or w/a/s/d to control snake. \n\neat food. \n\navoid obstacles/walls\n and yourself.";
       }
 
       setup(px) {
@@ -67,20 +67,20 @@
           obstacles.push([]);
           for (let y = 0; y < this.gridY; y++) {
             obstacles[x][y] = px.noise(this.gridX < this.gridY ? x : y, this.gridX < this.gridY ? y : x) > 0;
-            
-            let s = px.createShape({
-              s: this.cellSize,
-              strokeWeight: 1.2,
-              stroke: obstacles[x][y] ? 0 : 0x434343,
-              color: obstacles[x][y] ? 0 : 0x111111,
-            });
-            s.zIndex = obstacles[x][y] ? 100 : 0
-            this.setPosition(s, x, y);
+            if(!obstacles[x][y]) {
+              let s = px.createShape({
+                s: this.cellSize,
+                strokeWeight: 1.2,
+                stroke: 0x434343,
+                color: 0,
+              });
+              this.setPosition(s, x, y);
+            }
           }
         }
         
         
-        px.activeScene.filters = [new PIXI.filters.AdvancedBloomFilter({threshold: 0.3, quality: 8, bloomScale: 0.5, resolution: window.devicePixelRatio})];
+        px.activeScene.filters = [new PIXI.filters.AdvancedBloomFilter({threshold: 0.3, quality: 8, bloomScale: 0.8, resolution: window.devicePixelRatio, brightness: 1})];
         
         this.obstacles = obstacles;
         
@@ -155,10 +155,10 @@
         }
         
         let newHead = new Vector(head.x + this.dir.x, head.y + this.dir.y);
-        if(newHead.x >= this.gridX) newHead.x = 0;
+        /*if(newHead.x >= this.gridX) newHead.x = 0;
         if(newHead.y >= this.gridY) newHead.y = 0;
         if(newHead.x < 0) newHead.x = this.gridX - 1;
-        if(newHead.y < 0) newHead.y = this.gridY - 1;
+        if(newHead.y < 0) newHead.y = this.gridY - 1;*/
         
         this.snake.unshift(newHead);
         
@@ -181,7 +181,7 @@
             return px.gameover();
           }
         }
-        if(this.obstacles[newHead.x][newHead.y]) {
+        if(newHead.x >= this.gridX || newHead.y >= this.gridY || newHead.x < 0 || newHead.y < 0 || this.obstacles[newHead.x][newHead.y]) {
           return px.gameover();
         }
         
