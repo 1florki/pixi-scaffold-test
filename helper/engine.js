@@ -287,8 +287,8 @@ class PixiEngine {
         text: "start",
         textColor: 0xffffff,
         stroke: 0xffffff,
-        w: 80,
-        h: 30,
+        w: 110,
+        h: 45,
         textSize: 20,
         tap: (px) => {
           px.game();
@@ -329,8 +329,8 @@ class PixiEngine {
         text: "play again",
         textColor: 0xffffff,
         stroke: 0xffffff,
-        w: 130,
-        h: 30,
+        w: 150,
+        h: 45,
         textSize: 20,
         tap: (px) => {
           if (px.opts.restart) px.opts.restart(this);
