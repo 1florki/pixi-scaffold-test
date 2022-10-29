@@ -1,13 +1,13 @@
 // simplified particle system
 
 class Particle {
-  constructor(opts) {
+  constructor(opts, i) {
     opts = opts || {};
     this.pos = new Vector(opts.x, opts.y);
     this.vel = new Vector(opts.velX, opts.velY);
     this.acc = new Vector();
     
-    this.size = opts.size || 3;
+    this.size = opts.size || 10;
     this.alive = opts.alive != undefined ? opts.alive : false;
     this.lifetime = 0;
     this.maxAge = opts.maxAge || -1;
@@ -20,6 +20,7 @@ class Particle {
     
     this.vanish = opts.vanish != undefined ? opts.vanish : false;
     
+    this.index = i;
     //this.drawVec = new Vector();
   }
   reset(opts) {
@@ -60,10 +61,13 @@ class Particle {
   }
   draw(graphic) {
     if(!this.alive) return;
+    let s = this.size * (this.vanish ? 1 - this.lifetime / this.maxAge : 1);
+    graphic.beginFill(this.color, 1)
+    graphic.drawRect(this.pos.x - s / 2, this.pos.y - s / 2, s, s);
     
-    graphic.lineStyle(this.size * (this.vanish ? 1 - this.lifetime / this.maxAge : 1), this.color, 1);
+/*    graphic.lineStyle(this.size * (this.vanish ? 1 - this.lifetime / this.maxAge : 1), this.color, 1);
     graphic.moveTo(this.pos.x, this.pos.y);
-    graphic.lineTo(this.pos.x, this.pos.y + this.size * (this.vanish ? 1 - this.lifetime / this.maxAge : 1));
+    graphic.lineTo(this.pos.x, this.pos.y + this.size * (this.vanish ? 1 - this.lifetime / this.maxAge : 1));*/
   }
 }
 
@@ -75,18 +79,19 @@ class ParticleSystem {
     this.maxNum = opts.maxNum || 1000;
     this.particles = [];
     for(let i = 0; i < this.maxNum; i++) {
-      this.particles.push(new Particle(opts.particles));
+      this.particles.push(new Particle(opts.particles, i));
     }
     
     this.waitingList = [];
     
+    this.forces = opts.forces || [];
     if(opts.parent) opts.parent.addChild(this.graphic);
   }
   add(opts) {
     this.waitingList.unshift(opts);
   }
   addParticle(x, y, color, velX, velY, maxAge, size, vanish) {
-    this.waitingList.unshift({x: x, y: y, color: color, velX: velX, velY: velY, maxAge: maxAge, size: size, vanish: vanish});
+    this.add({x: x, y: y, color: color, velX: velX, velY: velY, maxAge: maxAge, size: size, vanish: vanish});
   }
   update(dt) {
     this.graphic.clear();
@@ -94,6 +99,13 @@ class ParticleSystem {
       let particle = this.particles[i];
       if(!particle.alive && this.waitingList.length > 0) {
         particle.reset(this.waitingList.pop());
+        console.log("spawn particle")
+      } else if(!particle.alive) {
+        continue;
+      }
+      for(let f of this.forces) {
+        let force = f.get(particle.pos.x, particle.pos.y, particle);
+        particle.applyForce(force.x, force.y);
       }
       particle.update(dt);
       particle.draw(this.graphic);

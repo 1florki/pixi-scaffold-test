@@ -8,27 +8,29 @@
 - [x] keydown and up event
 - [x] show/hide stats
 - [x] random seeded number generator
-- [x] easier way to draw/update shapes
+- [x] easier way to draw/update shapes (rect, circle, ellipse, rounded rect, line)
 - [x] vector class
 - [x] include noise
-- [x] tap/press/double tap ON object (rect only)
+- [x] tap/press/double tap ON object (rect, circle only)
 - [x] start + end pan event
 - [x] more gestures (pinch, rotate)
 - [x] default menu (play)
+- [x] easily save highscore etc
+- [x] game over screen (+ restart game)
+- [x] preload fonts
+- [x] simple particle system
+- [ ] shape change mouse over/pointer down
+- [ ] set default font
 
 
 #### future features:
 
+- animations
 - convert hsl to rgb
 - shape: mouseover, pointer-down
 - check for aabb box intersection
 - check intersection between two lines
-- simple particle system
-- game over screen (score, highscore, play again)
-- save high score
-- preload fonts
 - preload images
-- game over screen (+ restart game)
 
 #### maybe features:
 
@@ -42,11 +44,13 @@
 - easy way to play sounds (background music + effects) => https://howlerjs.com/
 - easy to import and use characters / etc
 - procedural 2d backgrounds?
-- easily save highscore etc
 - easy font access (pixelated?)
 - collision detection?
 - touch/mouse down?
 - peer2peer support?
+- advanced filters
+
+
 - three.js version?
 
 #### todo

@@ -46,6 +46,9 @@ class Shape extends PIXI.Graphics {
 
     this.shape = opts.shape || "rect";
     this._cornerRadius = opts.cornerRadius || 0;
+    
+    this.a = opts.a;
+    this.b = opts.b;
 
     this.redraw();
 
@@ -88,7 +91,6 @@ class Shape extends PIXI.Graphics {
     this._text.position.set(-bounds.width / 2, -bounds.height / 2);
     if (this.textAlign == "right") this._text.position.x = -bounds.width;
     if (this.textAlign == "left") this._text.position.x = 0;
-
   }
   get text() {
     return this._text.text;
@@ -160,10 +162,18 @@ class Shape extends PIXI.Graphics {
       this.drawEllipse(-this.size.x / 2, -this.size.y / 2, this.size.x, this.size.y);
     } else if ((this.shape == "rect" && this._cornerRadius > 0) || this.shape == "roundedrect") {
       this.drawRoundedRect(-this.size.x / 2, -this.size.y / 2, this.size.x, this.size.y, this._cornerRadius);
+    } else if(this.shape == "line" && this.a != undefined && this.b != undefined) {
+      this.moveTo(this.a.x, this.a.y);
+      this.lineTo(this.b.x, this.b.y);
     }
   }
+  
+  
 
   checkContainsPoint(x, y) {
+    if(this.shape == "circle") {
+      return MathUtils.containsPointCircle(x, y, this.position, Math.max(this.size.x, this.size.y));
+    }
     return MathUtils.containsPointBox(this.position, this.size, x, y);
   }
 }
@@ -212,13 +222,31 @@ class PixiEngine {
       x: opts.width || opts.w || opts.size || 800,
       y: opts.height || opts.h || opts.size || 400
     }
-
-
-    var face = new FontFace('pixeloid_sansregular', 'url(./pixeloidsans.woff)');
-    var font = new FontFaceObserver('pixeloid_sansregular');
-
-    font.load().then(() => {
+    opts.px = this;
+    
+    this.loadFonts();
+  }
+  
+  loadFonts() {
+    var observers = [];
+    
+    this.fonts = {'pixeloid_sansregular': 'url(./pixeloidsans.woff)'};
+    if(this.opts.fonts) {
+      for(let k of Object.keys(this.opts.fonts)) {
+        this.fonts[k] = this.opts.fonts[k];
+      }
+    }
+    
+    for(let k of Object.keys(this.fonts)) {
+      var fontface = new FontFace(k, this.fonts[k]);
+      document.fonts.add(fontface);
+      observers.push(new FontFaceObserver(k).load());
+    }
+    
+    Promise.all(observers).then(() => {
       this.setup();
+    }).catch((err) => {
+      console.warn('Some critical font are not available:', err);
     });
   }
 
@@ -254,7 +282,7 @@ class PixiEngine {
 
     this._noise = new Noise(this._noiseSettings)
 
-    // setup menu scene and game scene
+    // setup menu scene, game and game over scene
     this.alwaysShowGameScene = this.opts.alwaysShowGameScene != false
     this.scenes = {};
 
@@ -381,12 +409,46 @@ class PixiEngine {
       return a > b
     });
 
+    
+    // setup particle system
+    if(this.opts.particles != undefined) {
+      this.particleSystem = new ParticleSystem(this.opts.particleSettings != undefined ? this.opts.particleSettings : {maxNum: this.opts.particles});
+      this.root.addChild(this.particleSystem.graphic);
+    }
+    
     // custom setup stuff
     if (this.opts.setup) {
       this.opts.setup(this);
     }
   }
 
+  spawn(opts) {
+    console.log(opts);
+    if(opts.count != undefined && opts.count > 1) {
+      for(let i = 0; i < opts.count; i++) {
+      let optsCopy = {};
+        for(let k of Object.keys(opts)) {
+          if (typeof opts[k] === 'function') {
+            optsCopy[k] = opts[k](this);
+          } else {
+            optsCopy[k] = opts[k];
+          }
+        }
+    console.log(optsCopy);
+        this.spawnParticle(optsCopy);
+      }
+    } else {
+      this.spawnParticle(opts);
+    }
+    console.log(this.particleSystem);
+  }
+  
+  spawnParticle(opts) {
+    if(this.particleSystem == undefined) return;
+    
+    this.particleSystem.add(opts);
+  }
+  
   addScene(name, scene) {
     this.scenes[name] = scene;
     this.root.addChild(scene);
@@ -439,6 +501,10 @@ class PixiEngine {
     let dt = PIXI.Ticker.shared.elapsedMS;
     this.totalTime += dt;
 
+    if(this.particleSystem) {
+      this.particleSystem.update(dt / 1000.0);
+    }
+    
     if (this.opts.loop) {
       this.opts.loop(this, dt, this.totalTime, this.controls);
     }
