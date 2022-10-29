@@ -80,7 +80,7 @@
         }
         
         
-        px.activeScene.filters = [new PIXI.filters.AdvancedBloomFilter({threshold: 0.3, quality: 8, bloomScale: 0.5})];
+        px.activeScene.filters = [new PIXI.filters.AdvancedBloomFilter({threshold: 0.3, quality: 8, bloomScale: 0.5, resolution: window.devicePixelRatio})];
         
         this.obstacles = obstacles;
         
