@@ -632,7 +632,8 @@ const characterPresets = {
   wizard: wizard,
 };
 
-const backgroundsPresetFolder = "../resources/imgs/backgrounds/";
+const backgroundsPresetFolder =
+  "https://1florki.github.io/pixi-scaffold-test/resources/imgs/backgrounds/";
 
 const presetBackgrounds = {
   city: {
