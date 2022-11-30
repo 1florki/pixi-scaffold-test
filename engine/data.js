@@ -1,6 +1,6 @@
 const evilWizard = {
   name: "evilWizard",
-  folder: "../resources/imgs/characters/evil-wizard/",
+  folder: "/resources/imgs/characters/evil-wizard/",
   animationSpeed: 0.15,
   animations: {
     attack: {
@@ -27,7 +27,7 @@ const evilWizard = {
 };
 const evilWizard2 = {
   name: "evilWizard2",
-  folder: "../resources/imgs/characters/evil-wizard2/",
+  folder: "/resources/imgs/characters/evil-wizard2/",
   animationSpeed: 0.15,
   scale: 0.8,
   animations: {
@@ -67,7 +67,7 @@ const evilWizard2 = {
 };
 const fireWorm = {
   name: "fireWorm",
-  folder: "../resources/imgs/characters/fire-worm/",
+  folder: "/resources/imgs/characters/fire-worm/",
   animationSpeed: 0.15,
   animations: {
     attack: {
@@ -94,7 +94,7 @@ const fireWorm = {
 };
 const fantasyWarrior = {
   name: "fantasyWarrior",
-  folder: "../resources/imgs/characters/fantasy-warrior/",
+  folder: "/resources/imgs/characters/fantasy-warrior/",
   animationSpeed: 0.15,
   animations: {
     attack: {
@@ -137,7 +137,7 @@ const fantasyWarrior = {
 };
 const heroKnight = {
   name: "heroKnight",
-  folder: "../resources/imgs/characters/hero-knight/",
+  folder: "/resources/imgs/characters/hero-knight/",
   animationSpeed: 0.15,
   animations: {
     attack: {
@@ -176,7 +176,7 @@ const heroKnight = {
 };
 const heroKnight2 = {
   name: "heroKnight2",
-  folder: "../resources/imgs/characters/hero-knight2/",
+  folder: "/resources/imgs/characters/hero-knight2/",
   animationSpeed: 0.15,
   scale: 1.2,
   animations: {
@@ -216,7 +216,7 @@ const heroKnight2 = {
 };
 const huntress = {
   name: "huntress",
-  folder: "../resources/imgs/characters/huntress/",
+  folder: "/resources/imgs/characters/huntress/",
   animationSpeed: 0.15,
   scale: 1.2,
   animations: {
@@ -260,7 +260,7 @@ const huntress = {
 };
 const huntress2 = {
   name: "huntress2",
-  folder: "../resources/imgs/characters/huntress2/",
+  folder: "/resources/imgs/characters/huntress2/",
   animationSpeed: 0.15,
   scale: 1.2,
   animations: {
@@ -296,7 +296,7 @@ const huntress2 = {
 };
 const martialHero = {
   name: "martialHero",
-  folder: "../resources/imgs/characters/martial-hero/",
+  folder: "/resources/imgs/characters/martial-hero/",
   animationSpeed: 0.15,
   animations: {
     attack: {
@@ -335,7 +335,7 @@ const martialHero = {
 };
 const martialHero2 = {
   name: "martialHero2",
-  folder: "../resources/imgs/characters/martial-hero2/",
+  folder: "/resources/imgs/characters/martial-hero2/",
   animationSpeed: 0.15,
   animations: {
     attack: {
@@ -374,7 +374,7 @@ const martialHero2 = {
 };
 const martialHero3 = {
   name: "martialHero3",
-  folder: "../resources/imgs/characters/martial-hero3/",
+  folder: "/resources/imgs/characters/martial-hero3/",
   animationSpeed: 0.15,
   animations: {
     attack: {
@@ -417,7 +417,7 @@ const martialHero3 = {
 };
 const medievalKing = {
   name: "medievalKing",
-  folder: "../resources/imgs/characters/medieval-king/",
+  folder: "/resources/imgs/characters/medieval-king/",
   animationSpeed: 0.15,
   scale: 0.6,
   animations: {
@@ -457,7 +457,7 @@ const medievalKing = {
 };
 const medievalKing2 = {
   name: "medievalKing2",
-  folder: "../resources/imgs/characters/medieval-king2/",
+  folder: "/resources/imgs/characters/medieval-king2/",
   animationSpeed: 0.15,
   scale: 0.9,
   animations: {
@@ -501,7 +501,7 @@ const medievalKing2 = {
 };
 const medievalWarrior = {
   name: "medievalWarrior",
-  folder: "../resources/imgs/characters/medieval-warrior/",
+  folder: "/resources/imgs/characters/medieval-warrior/",
   animationSpeed: 0.15,
   scale: 0.7,
   animations: {
@@ -561,7 +561,7 @@ const medievalWarrior = {
 };
 const wizard = {
   name: "wizard",
-  folder: "../resources/imgs/characters/wizard/",
+  folder: "/resources/imgs/characters/wizard/",
   animationSpeed: 0.15,
   scale: 0.6,
   animations: {

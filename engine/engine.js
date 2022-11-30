@@ -608,7 +608,7 @@ class PixiEngine {
     var observers = [];
 
     this.fonts = {
-      pixeloid_sansregular: "url(../resources/fonts/pixeloidsans.woff)",
+      pixeloid_sansregular: "url(/resources/fonts/pixeloidsans.woff)",
     };
 
     this.fonts = Helper.mergeDicts(this.fonts, this.opts.fonts);
