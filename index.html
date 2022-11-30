@@ -1,228 +1,70 @@
-<!doctype html>
-<meta charset="utf-8">
-<title>pixi scaffold</title>
+<!DOCTYPE html>
+<meta charset="utf-8" />
+<meta
+  name="viewport"
+  content="user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1"
+/>
+<meta name="apple-mobile-web-app-capable" content="yes" />
 
-<meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1">
-<meta name="apple-mobile-web-app-capable" content="yes">
+<title>pixi game engine</title>
 
-<body style="background-color:#000000; margin: 0; height: 100%; overflow: hidden">
+<body style="background-color: white">
+  <script src="./engine/helper-threejs.js"></script>
+  <script src="./engine/data.js"></script>
+  <script src="./engine/engine.js"></script>
 
-  <script src="./helper/helper.js"></script>
-  <script src="./helper/engine.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/pixi-filters@latest/dist/pixi-filters.js"></script>
-
-  
   <script>
-    class SnakeGame {
-      constructor(opts) {
-        opts = opts || {};
-        this.gridX = 15;
-        this.gridY = 30;
-        this.cellSize = 20;
+    class MyGame {
+      w = 970;
+      h = 550;
 
-        if(window.innerWidth > window.innerHeight) {
-          let a = this.gridX;
-          this.gridX = this.gridY;
-          this.gridY = a;
-        }
-        
-        this.w = this.gridX * this.cellSize + 40;
-        this.h = this.gridY * this.cellSize + 60;
-        
-        this.centerZero = true
-        // 7, 9
-        this.noise = {scale: 0.1, pow: 2, seed: 16}
-        
-        this.title = "Snake"
-        
-        
-        this.particles = 1000
-        this.stats = true
-        this.help = "swipe/press w/a/s/d to control snake. \n\neat food. \n\navoid obstacles/walls\n and yourself.";
-      }
+      background = { preset: "forest", index: 0 };
 
-      setup(px) {
-        this.px = px;
-        
-        this.setupGame(px);
-        px.menu();
+      characters = [{ preset: "huntress" }];
+
+      stats = true;
+
+      player;
+
+      ground = 110;
+
+      setup() {
+        this.player = new AnimatedContainer(
+          { preset: "huntress", state: "run", speed: 1.5 },
+          this.px.resources
+        );
+
+        this.player.zIndex = -10;
+        this.player.position.set(0, this.ground);
+        this.player.scale.set(2);
+        this.px.add(this.player);
+
+        this.ySpeed = 0;
       }
-      
-      setupGame(px) {
-        px.game();
-        
-        px.removeAll();
-        
-        let obstacles = [];
-        // draw grid
-        for (let x = 0; x < this.gridX; x++) {
-          obstacles.push([]);
-          for (let y = 0; y < this.gridY; y++) {
-            obstacles[x][y] = px.noise(this.gridX < this.gridY ? x : y, this.gridX < this.gridY ? y : x) > 0;
-            if(!obstacles[x][y]) {
-              let s = px.createShape({
-                s: this.cellSize,
-                strokeWeight: 1.2,
-                stroke: 0x434343,
-                color: 0,
-              });
-              this.setPosition(s, x, y);
-            }
-          }
-        }
-        
-        
-        px.root.filters = [new PIXI.filters.AdvancedBloomFilter({threshold: 0.3, quality: 16, bloomScale: 1.5, resolution: window.devicePixelRatio, brightness: 1})];
-        
-        this.obstacles = obstacles;
-        
-        this.dir = new Vector(1, 0);
-        this.newDir = new Vector(1, 0);
-        
-        this.snakeItems = [];
-        this.snake = [new Vector(Math.floor(this.gridX / 2), Math.floor(this.gridY / 2))];
-        this.updateSnake();
-        
-        this.grow = 3;
-        
-        
-        this.foodItem = px.createShape({s: this.cellSize, color: 0xffffff, zIndex: 5});
-        this.placeFood(px);
-        
-        this.scoreItem = px.createShape({y: this.h / 2 - 20, x: this.w / 2 - 5, text: "0", textColor: 0xffffff, textAlign: "right"})
+      tap() {
+        if (this.player.y >= this.ground) this.ySpeed = -10;
       }
-      
-      updateSnake() {
-        while(this.snakeItems.length < this.snake.length) {
-          let s = this.px.createShape({s: this.cellSize, color: 0x00ffff, alpha: 1});
-          s.zIndex = 200
-          this.snakeItems.push(s);
-        }
-        
-        for(let i = 0; i < this.snake.length && i < this.snakeItems.length; i++) {
-          this.setPosition(this.snakeItems[i], this.snake[i].x, this.snake[i].y);
-          this.snakeItems[i].color = MathUtils.hsl2hex(((i + this.px.totalTime * 0.001) / 40) % 1, 1, 0.5);
-        }
-      }
-      
-      setPosition(item, x, y) {
-        item.x = x * this.cellSize + this.cellSize / 2 - this.w / 2 + 20;
-        item.y = y * this.cellSize + this.cellSize / 2 - this.h / 2 + 20;
-      }
-      getPosition(x, y) {
-        return new Vector(x * this.cellSize + this.cellSize / 2 - this.w / 2 + 20, y * this.cellSize + this.cellSize / 2 - this.h / 2 + 20);
-      }
-      
-      placeFood() {
-        this.food = new Vector(Math.floor(this.px.random(this.gridX)), Math.floor(this.px.random(this.gridY)));
-        
-        if(this.obstacles[this.food.x][this.food.y]) {
-          this.placeFood();
-          return;
-        }
-        
-        for(let s of this.snake) {
-          if(s.x == this.food.x && s.y == this.food.y) {
-            this.placeFood();
-            return;
-          }
-        }
-        this.setPosition(this.foodItem, this.food.x, this.food.y);
-      }
-      
-      restart(px) {
-        this.setupGame(px);
-      }
-      
-      loop(px, dt) {
-        if(px.scene != "game") return;
-        
-        
-        this.frameTime = (this.frameTime || 0) + dt;
-        if(this.frameTime < 200) return;
-        
-        this.frameTime = 0;
-        
-        let head = this.snake[0];
-        
-        if(Math.abs(this.dir.x + this.newDir.x) == 1 || Math.abs(this.dir.y + this.newDir.y) == 1) {
-          this.dir.copy(this.newDir);
-        }
-        
-        let newHead = new Vector(head.x + this.dir.x, head.y + this.dir.y);
-        /*if(newHead.x >= this.gridX) newHead.x = 0;
-        if(newHead.y >= this.gridY) newHead.y = 0;
-        if(newHead.x < 0) newHead.x = this.gridX - 1;
-        if(newHead.y < 0) newHead.y = this.gridY - 1;*/
-        
-        this.snake.unshift(newHead);
-        
-        if(newHead.x == this.food.x && newHead.y == this.food.y) {
-          this.grow += 1;
-          this.placeFood();
-          
-          let p = this.getPosition(newHead.x, newHead.y);
-          
-          px.spawn({maxAge: () => { return px.random(1, 3) }, vanish: true, count: 20, x: p.x, y:p.y, size: () => { return px.random(3, 7) }, velX: () => { return px.random(-2, 2) }, velY: () => { return px.random(-2, 2) }})
-        }
-        
-        if(this.grow <= 0) {
-          this.snake.pop();
+      loop(dt) {
+        this.px.background.move(-dt * 0.03, 0);
+
+        this.ySpeed += 0.5;
+        this.player.y += this.ySpeed;
+        if (this.player.y < this.ground) {
+          this.player.state = "jump";
         } else {
-          this.grow -= 1;
-          this.scoreItem.text = this.snake.length;
-          px.score = this.snake.length;
+          this.player.state = "run";
+          this.player.y = this.ground;
         }
-        
-        // check for death
-        for(let i = 1; i < this.snake.length; i++) {
-          if(this.snake[i].x == newHead.x && this.snake[i].y == newHead.y) {
-            return px.gameover();
-          }
-        }
-        if(newHead.x >= this.gridX || newHead.y >= this.gridY || newHead.x < 0 || newHead.y < 0 || this.obstacles[newHead.x][newHead.y]) {
-          return px.gameover();
-        }
-        
-        
-        this.updateSnake();
-        
+        //this.player.y = Math.min(this.player.y, this.ground);
       }
 
-
-      swipe(px, evt) {
-        if(px.scene != "game") return;
-        
-        if (evt.direction == 4) {
-          this.newDir.set(1, 0);
-        } else if (evt.direction == 8) {
-          this.newDir.set(0, -1);
-        } else if (evt.direction == 16) {
-          this.newDir.set(0, 1);
-        } else if (evt.direction == 2) {
-          this.newDir.set(-1, 0);
-        }
-      }
-
-      keyDown(px, key) {
-        if(key == "f") {
-          px.toggleFullscreen();
-        }
-        
-        //if(px.scene != "game") return;
-        
-        if (key == "d") {
-          this.newDir.set(1, 0);
-        } else if (key == "a") {
-          this.newDir.set(-1, 0);
-        } else if (key == "w") {
-          this.newDir.set(0, -1);
-        } else if (key == "s") {
-          this.newDir.set(0, 1);
-        }
+      keyDown(key) {
+        if (key == "f") this.px.toggleFullscreen();
+        if (key == "p") this.px.scene = "menu";
+        if (key == "l") this.px.scene = "gameover";
       }
     }
-    new PixiEngine(new SnakeGame());
-    
+
+    RunGame(new MyGame());
   </script>
 </body>
